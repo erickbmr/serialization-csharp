@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<Client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Name>Name LastName</Name>
+  <Document>32423</Document>
+  <PhoneNumber>31988887777</PhoneNumber>
+  <Address>
+    <Line>940 Memorial Dr NW</Line>
+    <City>Calgary</City>
+    <State>Alberta</State>
+    <Country>Canada</Country>
+  </Address>
+</Client>
