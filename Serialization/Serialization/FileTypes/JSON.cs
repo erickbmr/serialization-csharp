@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using System.Text.Json;
 using System.IO;
-using Serialization.Helper;
+using Serialization.Interfaces;
 
 namespace Serialization.FileTypes
 {
-    public class JSON : IBuilder
+    public class JSON : IBuilderString
     {
         public string FilePath { get; set; }
 
@@ -16,10 +16,10 @@ namespace Serialization.FileTypes
 
         public bool CreateFile(object obj)
         {
-            string objSerialized = Serialize(obj);
-            using (FileStream stream = File.Create(FilePath))
+            var objSerialized = Serialize(obj);
+            using (var stream = File.Create(FilePath))
             {
-                byte[] jsonBytes = Encoding.ASCII.GetBytes(objSerialized);
+                var jsonBytes = Encoding.ASCII.GetBytes(objSerialized);
                 stream.Write(jsonBytes);
             }
             return true;
@@ -27,22 +27,22 @@ namespace Serialization.FileTypes
 
         public object GetObjectFromFile()
         {
-            byte[] readBuffer = File.ReadAllBytes(FilePath);
-            string jsonObject = Encoding.ASCII.GetString(readBuffer);
+            var readBuffer = File.ReadAllBytes(FilePath);
+            var jsonObject = Encoding.ASCII.GetString(readBuffer);
             
             return Deserialize(jsonObject);
         }
 
-        public string Serialize(object obj)
+        private string Serialize(object obj)
         {
-            string response = JsonSerializer.Serialize(obj);
+            var response = JsonSerializer.Serialize(obj);
             
             File.WriteAllText(FilePath, response);
             
             return response;
         }
 
-        public object Deserialize(string obj)
+        private object Deserialize(string obj)
         {
             return JsonSerializer.Deserialize<Client>(obj);
         }

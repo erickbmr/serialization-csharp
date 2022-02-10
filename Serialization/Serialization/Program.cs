@@ -1,4 +1,6 @@
-﻿using Serialization.FileTypes;
+﻿using Serialization.Builders;
+using Serialization.FileTypes;
+using Serialization.Helper;
 using System;
 using System.IO;
 
@@ -6,11 +8,14 @@ namespace Serialization
 {
     public class Program
     {
+        public const string CLIENT_FILE_NAME = "client";
+
         public static void Main(string[] args)
         {
-            //improve
             DoJson();
             DoYaml();
+            DoXml();
+            DoPB();
         }
 
         private static void DoJson()
@@ -18,38 +23,23 @@ namespace Serialization
             try
             {
                 var newClient = GetClientObj();
-
-                var filesPath = Path.GetDirectoryName(Environment.CurrentDirectory) + "\\files";
-
-                if (!Directory.Exists(filesPath))
-                    Directory.CreateDirectory(filesPath);
-
-                var fileName = "client.json";
+                var filesPath = GetPath();
+                var fileName = CLIENT_FILE_NAME + Constants.JSON_EXTENSION;
                 var jsonPath = Path.Combine(filesPath, fileName);
 
-                if (File.Exists(jsonPath))
-                    File.Delete(jsonPath);
+                DeleteIfExists(jsonPath);
 
-                var builder = new Helper.Builder(new JSON(jsonPath));
+                var builder = new BuilderString(new JSON(jsonPath));
 
-                var isCreated = builder.CreateFile(newClient);
-
-                if (isCreated)
+                if (builder.CreateFile(newClient))
                 {
                     var client = builder.GetObjectFromFile() as Client;
 
-                    Console.WriteLine("File's path: " + jsonPath);
-                    Console.WriteLine("\n-------------- Info from file --------------\n");
-                    Console.WriteLine("Address: " + client.Address.Line);
-                    Console.WriteLine("City: " + client.Address.City);
-                    Console.WriteLine("Country: " + client.Address.Country);
-                    Console.WriteLine("Document: " + client.Document);
-                    Console.WriteLine("Name: " + client.Name);
-                    Console.WriteLine("Phone Number: " + client.PhoneNumber);
-                    Console.WriteLine("State: " + client.Address.State);
+                    PrintResult(jsonPath, client);
+                    return;
                 }
-                else
-                    Console.WriteLine("The file was not created.");
+
+                PrintNotCreated();
             }
             catch (Exception ex)
             {
@@ -63,36 +53,83 @@ namespace Serialization
             try
             {
                 var newClient = GetClientObj();
-
-                var filesPath = Path.GetDirectoryName(Environment.CurrentDirectory) + "\\files";
-                if (!Directory.Exists(filesPath))
-                    Directory.CreateDirectory(filesPath);
-
-                var fileName = "client.yaml";
+                var filesPath = GetPath();
+                var fileName = CLIENT_FILE_NAME + Constants.YAML_EXTENSION;
                 var yamlPath = Path.Combine(filesPath, fileName);
 
-                if (File.Exists(yamlPath))
-                    File.Delete(yamlPath);
+                DeleteIfExists(yamlPath);
 
-                var builder = new Helper.Builder(new YAML(yamlPath));
-                var isCreated = builder.CreateFile(newClient);
-
-                if (isCreated)
+                var builder = new BuilderString(new YAML(yamlPath));
+                
+                if (builder.CreateFile(newClient))
                 {
                     var client = builder.GetObjectFromFile() as Client;
 
-                    Console.WriteLine("File's path: " + yamlPath);
-                    Console.WriteLine("\n-------------- Info from file --------------\n");
-                    Console.WriteLine("Address: " + client.Address.Line);
-                    Console.WriteLine("City: " + client.Address.City);
-                    Console.WriteLine("Country: " + client.Address.Country);
-                    Console.WriteLine("Document: " + client.Document);
-                    Console.WriteLine("Name: " + client.Name);
-                    Console.WriteLine("Phone Number: " + client.PhoneNumber);
-                    Console.WriteLine("State: " + client.Address.State);
+                    PrintResult(yamlPath, client);
+                    return;
                 }
-                else
-                    Console.WriteLine("The file was not created.");
+
+                PrintNotCreated();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
+        }
+
+        private static void DoXml()
+        {
+            try
+            {
+                var newClient = GetClientObj();
+                var filesPath = GetPath();
+                var fileName = CLIENT_FILE_NAME + Constants.XML_EXTENSION;
+                var xmlPath = Path.Combine(filesPath, fileName);
+
+                DeleteIfExists(xmlPath);
+
+                var builder = new BuilderStream(new XML(xmlPath, typeof(Client)));
+                
+                if (builder.CreateFile(newClient))
+                {
+                    var client = builder.GetObjectFromFile() as Client;
+
+                    PrintResult(xmlPath, client);
+                    return;
+                }
+
+                PrintNotCreated();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return;
+            }
+        }
+
+        private static void DoPB()
+        {
+            try
+            {
+                var newClient = GetClientObj();
+                var filesPath = GetPath();
+                var fileName = CLIENT_FILE_NAME + Constants.PB_EXTENSION;
+                var pbPath = Path.Combine(filesPath, fileName);
+
+                DeleteIfExists(pbPath);
+
+                var builder = new BuilderStream(new PB(pbPath, typeof(Client)));
+                
+                if (builder.CreateFile(newClient))
+                {
+                    var client = builder.GetObjectFromFile() as Client;
+
+                    PrintResult(pbPath, client);
+                    return;
+                }
+
+                PrintNotCreated();
             }
             catch (Exception ex)
             {
@@ -107,90 +144,38 @@ namespace Serialization
             return new Client("Name LastName", "32423", "31988887777", newAddress);
         }
 
-        /*
-         * TODO
-         * 
-        public static void xml()
+        private static void PrintResult(string path, Client client)
         {
-            try
-            {
-                Address newAddress = new Address("940 Memorial Dr NW", "Calgary", "Alberta", "Canada");
-                Client newClient = new Client("Name LastName", "32423", "31988887777", newAddress);
-
-                string filesPath = Path.GetDirectoryName(Environment.CurrentDirectory) + "\\files";
-                if (!Directory.Exists(filesPath))
-                    Directory.CreateDirectory(filesPath);
-                string fileName = "client.xml";
-                string xmlPath = Path.Combine(filesPath, fileName);
-
-                if (File.Exists(xmlPath))
-                    File.Delete(xmlPath);
-
-                bool isCreated = CreateFile(newClient, xmlPath);
-
-                if (isCreated)
-                {
-                    Console.WriteLine("File's path: " + xmlPath);
-                    Client client = GetObjectFromFile(xmlPath);
-                    Console.WriteLine("\n-------------- Info from file --------------\n");
-                    Console.WriteLine("Address: " + client.Address.Line);
-                    Console.WriteLine("City: " + client.Address.City);
-                    Console.WriteLine("Country: " + client.Address.Country);
-                    Console.WriteLine("Document: " + client.Document);
-                    Console.WriteLine("Name: " + client.Name);
-                    Console.WriteLine("Phone Number: " + client.PhoneNumber);
-                    Console.WriteLine("State: " + client.Address.State);
-                }
-                else
-                    Console.WriteLine("The file was not created.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return;
-            }
+            Console.WriteLine("File's path: " + path);
+            Console.WriteLine("\n-------------- Info from file --------------\n");
+            Console.WriteLine("Address: " + client.Address.Line);
+            Console.WriteLine("City: " + client.Address.City);
+            Console.WriteLine("Country: " + client.Address.Country);
+            Console.WriteLine("Document: " + client.Document);
+            Console.WriteLine("Name: " + client.Name);
+            Console.WriteLine("Phone Number: " + client.PhoneNumber);
+            Console.WriteLine("State: " + client.Address.State);
+            Console.WriteLine("\n\n\n");
         }
 
-        public static void pb()
+        private static void PrintNotCreated()
         {
-            try
-            {
-                Address newAddress = new Address("940 Memorial Dr NW", "Calgary", "Alberta", "Canada");
-                Client newClient = new Client("Name LastName", "32423", "31988887777", newAddress);
-
-                string filesPath = Path.GetDirectoryName(Environment.CurrentDirectory) + "\\files";
-                if (!Directory.Exists(filesPath))
-                    Directory.CreateDirectory(filesPath);
-                string fileName = "client.dat";
-                string pbPath = Path.Combine(filesPath, fileName);
-
-                if (File.Exists(pbPath))
-                    File.Delete(pbPath);
-
-                bool isCreated = CreateFile(newClient, pbPath);
-
-                if (isCreated)
-                {
-                    Console.WriteLine("File's path: " + pbPath);
-                    Client client = GetObjectFromFile(pbPath);
-                    Console.WriteLine("\n-------------- Info from file --------------\n");
-                    Console.WriteLine("Address: " + client.Address.Line);
-                    Console.WriteLine("City: " + client.Address.City);
-                    Console.WriteLine("Country: " + client.Address.Country);
-                    Console.WriteLine("Document: " + client.Document);
-                    Console.WriteLine("Name: " + client.Name);
-                    Console.WriteLine("Phone Number: " + client.PhoneNumber);
-                    Console.WriteLine("State: " + client.Address.State);
-                }
-                else
-                    Console.WriteLine("The file was not created.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return;
-            }
+            Console.WriteLine("The file was not created.");
         }
-        */
+
+        private static string GetPath()
+        {
+            var filesPath = Path.GetDirectoryName(Environment.CurrentDirectory) + "\\files";
+            if (!Directory.Exists(filesPath))
+                Directory.CreateDirectory(filesPath);
+            
+            return filesPath;
+        }
+
+        private static void DeleteIfExists(string path)
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
     }
 }

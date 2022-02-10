@@ -1,76 +1,34 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ProtoBuf;
-using Serialization.Helper;
+using Serialization.Interfaces;
 
 namespace Serialization.FileTypes
 {
-    public class PB : IBuilder
+    public class PB : IBuilderStream
     {
-        /*
-         * TODO
-         * 
-         * 
-        public static bool CreateFile(Client client, string pbPath)
-        {
-            try
-            {
-                using (FileStream stream = File.Create(pbPath))
-                    Serializer.Serialize(stream, client);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-        }
-
-        public static Client GetObjectFromFile(string path)
-        {
-            try
-            {
-                byte[] array = File.ReadAllBytes(path);
-                Client client = Serializer.Deserialize<Client>(new MemoryStream(array));
-                return client;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
-        }
-        */
         public string FilePath { get; set; }
+        public Type ObjType { get; set; }
 
-        public PB(string filePath)
+        public PB(string filePath, Type objType)
         {
             FilePath = filePath;
+            ObjType = objType;
         }
 
         public bool CreateFile(object obj)
         {
-            throw new NotImplementedException();
+            using (var stream = File.Create(FilePath))
+                Serializer.Serialize(stream, obj);
+
+            return true;
         }
 
         public object GetObjectFromFile()
         {
-            throw new NotImplementedException();
-        }
-
-        public string Serialize(object obj)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object Deserialize(string obj)
-        {
-            throw new NotImplementedException();
+            var array = File.ReadAllBytes(FilePath);
+            var obj = Serializer.Deserialize(ObjType, new MemoryStream(array));
+            return obj;
         }
     }
 }

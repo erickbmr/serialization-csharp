@@ -1,15 +1,11 @@
-﻿using Serialization.Helper;
-using System;
-using System.Collections.Generic;
+﻿using Serialization.Interfaces;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using YamlDotNet.Serialization;
 
 namespace Serialization.FileTypes
 {
-    public class YAML : IBuilder
+    public class YAML : IBuilderString
     {
         public string FilePath { get; set; }
 
@@ -20,32 +16,32 @@ namespace Serialization.FileTypes
 
         public bool CreateFile(object obj)
         {
-            string clientSerialized = Serialize(obj);
-            using (FileStream stream = File.Create(FilePath))
+            var clientSerialized = Serialize(obj);
+            using (var stream = File.Create(FilePath))
             {
-                byte[] yamlBt = Encoding.ASCII.GetBytes(clientSerialized);
+                var yamlBt = Encoding.ASCII.GetBytes(clientSerialized);
                 stream.Write(yamlBt);
             }
             return true;
         }
         public object GetObjectFromFile()
         {
-            string objYaml = "";
-            using (StreamReader reader = new StreamReader(FilePath))
+            var objYaml = "";
+            using (var reader = new StreamReader(FilePath))
                 objYaml = reader.ReadToEnd();
 
             return Deserialize(objYaml);
         }
 
-        public string Serialize(object obj)
+        private string Serialize(object obj)
         {
-            ISerializer yamlSerializer = new SerializerBuilder().Build();
+            var yamlSerializer = new SerializerBuilder().Build();
             return yamlSerializer.Serialize(obj);
         }
 
-        public object Deserialize(string obj)
+        private object Deserialize(string obj)
         {
-            IDeserializer yamlDeserializer = new DeserializerBuilder().Build();
+            var yamlDeserializer = new DeserializerBuilder().Build();
             return yamlDeserializer.Deserialize<Client>(obj);
         }
 

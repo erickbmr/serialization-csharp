@@ -1,81 +1,38 @@
-﻿using Serialization.Helper;
+﻿using Serialization.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace Serialization.FileTypes
 {
-    public class XML : IBuilder
+    public class XML : IBuilderStream
     {
-        /*
-         * TODO
-         * 
-         * 
-        public static bool CreateFile(Client client, string xmlPath)
-        {
-            try
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(Client));
-                using (FileStream stream = File.Create(xmlPath))
-                    serializer.Serialize(stream, client);
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return false;
-            }
-        }
-
-        public static Client GetObjectFromFile(string path)
-        {
-            try
-            {
-                Client client = new Client();
-                XmlSerializer serializer = new XmlSerializer(typeof(Client));
-                using(FileStream stream = File.OpenRead(path))
-                    client = (Client)serializer.Deserialize(stream);
-                
-                return client;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
-        }
-        */
         public string FilePath { get; set; }
+        public Type ObjType { get; set; }
 
-        public XML(string filePath)
+        public XML(string filePath, Type objType)
         {
             FilePath = filePath;
+            ObjType = objType;
         }
 
         public bool CreateFile(object obj)
         {
-            throw new NotImplementedException();
-        }
+            var serializer = new XmlSerializer(ObjType);
+            using (var stream = File.Create(FilePath))
+                serializer.Serialize(stream, obj);
 
-        public object Deserialize(string obj)
-        {
-            throw new NotImplementedException();
+            return true;
         }
 
         public object GetObjectFromFile()
         {
-            throw new NotImplementedException();
-        }
+            object obj = null;
+            var serializer = new XmlSerializer(ObjType);
+            using (var stream = File.OpenRead(FilePath))
+                obj = serializer.Deserialize(stream);
 
-        public string Serialize(object obj)
-        {
-            throw new NotImplementedException();
+            return obj;
         }
     }
 }
