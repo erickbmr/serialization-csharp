@@ -29,7 +29,7 @@ namespace Serialization
 
                 DeleteIfExists(jsonPath);
 
-                var builder = new BuilderString(new JSON(jsonPath));
+                var builder = new Builder(new JSON(jsonPath));
 
                 if (builder.CreateFile(newClient))
                 {
@@ -59,7 +59,7 @@ namespace Serialization
 
                 DeleteIfExists(yamlPath);
 
-                var builder = new BuilderString(new YAML(yamlPath));
+                var builder = new Builder(new YAML(yamlPath));
                 
                 if (builder.CreateFile(newClient))
                 {
@@ -89,7 +89,7 @@ namespace Serialization
 
                 DeleteIfExists(xmlPath);
 
-                var builder = new BuilderStream(new XML(xmlPath, typeof(Client)));
+                var builder = new Builder(new XML(xmlPath, typeof(Client)));
                 
                 if (builder.CreateFile(newClient))
                 {
@@ -119,7 +119,7 @@ namespace Serialization
 
                 DeleteIfExists(pbPath);
 
-                var builder = new BuilderStream(new PB(pbPath, typeof(Client)));
+                var builder = new Builder(new PB(pbPath, typeof(Client)));
                 
                 if (builder.CreateFile(newClient))
                 {

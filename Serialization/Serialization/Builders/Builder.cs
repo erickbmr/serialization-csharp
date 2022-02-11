@@ -2,11 +2,11 @@
 
 namespace Serialization.Builders
 {
-    public class BuilderString
+    public class Builder
     {
-        private readonly IBuilderString _builder;
+        private readonly IBuilder _builder;
 
-        public BuilderString(IBuilderString builder)
+        public Builder(IBuilder builder)
         {
             _builder = builder;
         }
